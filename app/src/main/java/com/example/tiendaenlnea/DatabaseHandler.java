@@ -1,7 +1,9 @@
 package com.example.tiendaenlnea;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -20,6 +22,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE tienda(codProduc TEXT PRIMARY KEY, nombreProduc TEXT, precioProduc TEXT)");
 
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -82,11 +85,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         //Busqueda del registro para eliminarlo
-        Cursor cursor = db.rawQuery("SELECT * FROM tienda WHERE codProduc=?", new String[]{id});
+        Cursor cursor = db.rawQuery("  SELECT *  FROM tienda WHERE codProduc=?", new String[]{id});
 
         if(cursor.getCount()>0){
 
-            long result = db.delete("tienda", "codProduc", new String[]{id});
+            long result = db.delete("tienda", "codProduc=?", new String[]{id});
             if(result==-1){
                 return false;
             }else{

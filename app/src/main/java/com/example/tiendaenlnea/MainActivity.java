@@ -3,6 +3,7 @@ package com.example.tiendaenlnea;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Bundle;
@@ -10,13 +11,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ResourceCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-
+String idS;
+String  idSS;
     EditText id, nombre, precio;
-    Button insert, list, update, delete;
+    Button insert, list, update, delete, regresar;
     DatabaseHandler DB;
+String action="new";
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,19 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.btnViewData);
         delete = findViewById(R.id.btndelete);
         DB = new DatabaseHandler(this);
+regresar=findViewById(R.id.btnRegresar);
+
+
+        //datos recibidos del listactivity
+showData();
+
+regresar.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        Intent intent=new Intent(MainActivity.this,ListActivity.class);
+        startActivity(intent);
+    }
+});
 
 
         //Agregamos evento del click en los botones
@@ -42,14 +63,26 @@ public class MainActivity extends AppCompatActivity {
                 String nombreProducTXT = nombre.getText().toString();
                 String precioProducTXT = precio.getText().toString();
 
+                if (id.length() == 0) {
+                    id.setError("Debe rellenar el espacio");
+                    return;
+                }
+                if(nombre.length() == 0){
+                    nombre.setError("Debe rellenar el espacio");
+                    return;
+                }
+                if (precio.length() == 0){
+                    precio.setError("Debe rellenar el espacio");
+                    return;
+                }
+
+
+
                 Boolean checkInsert = DB.insertData(codProducTXT,nombreProducTXT,precioProducTXT);
                 if(checkInsert==true){
-
                     Toast.makeText(MainActivity.this, "Se ha insertado su nuevo registro",
                             Toast.LENGTH_LONG).show();
-
                 }else{
-
                     Toast.makeText(MainActivity.this, "No se ha podido insertar el nuevo registro",
                             Toast.LENGTH_LONG).show();
                 }
@@ -101,16 +134,31 @@ public class MainActivity extends AppCompatActivity {
                 String precioProducTXT = precio.getText().toString();
 
                 Boolean checkInsert = DB.updateData(codProducTXT,nombreProducTXT,precioProducTXT);
+                if (id.length() == 0) {
+                    id.setError("Debe rellenar el espacio");
+                    return;
+                }
+                if(nombre.length() == 0){
+                    nombre.setError("Debe rellenar el espacio");
+                    return;
+                }
+                if (precio.length() == 0){
+                    precio.setError("Debe rellenar el espacio");
+                    return;
+                }
+
                //Evaluamos si la tabla Data se ha actulizado
                 if(checkInsert==true){
 
                     Toast.makeText(MainActivity.this, "Se ha actualizado su nuevo registro",
                             Toast.LENGTH_LONG).show();
-
+                    finish();
+                    startActivity(getIntent());
                 }else{
 
                     Toast.makeText(MainActivity.this, "No se ha podido actualizar el nuevo registro",
                             Toast.LENGTH_LONG).show();
+
                 }
             }
         });
@@ -122,17 +170,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String idTXT = id.getText().toString();
+                String codProducTXT = id.getText().toString();
 
-                Boolean checkdeleteData = DB.deleteData(idTXT);
+                Boolean checkdeleteData = DB.deleteData(codProducTXT);
 
                 if(checkdeleteData==true){
 
-                    Toast.makeText(MainActivity.this, "El registro se eliminó",
+                    Toast.makeText(MainActivity.this, "El registro se acaba de  eliminar",
                             Toast.LENGTH_SHORT).show();
 
                 }else{
-                    Toast.makeText(MainActivity.this, "El registro no se pudo eliminar",
+                    Toast.makeText(MainActivity.this, " El registro no se eliminó",
                             Toast.LENGTH_SHORT).show();
                 }
 
@@ -140,4 +188,50 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private void showData() {
+        try {
+            Bundle bundle=getIntent().getExtras();
+            action=bundle.getString("action");
+                if(action.equals("edit")){
+
+
+                    update.setVisibility(View.VISIBLE);
+                    insert.setVisibility(View.GONE);
+                idS=bundle.getString("id");
+                String shop[]=bundle.getStringArray("shop");
+                TextView tempVal=(TextView) findViewById(R.id.id);
+                 tempVal.setText(idS);
+
+                     tempVal=(TextView) findViewById(R.id.nombre);
+                         tempVal.setText(shop[0].toString());
+
+                              tempVal=(TextView) findViewById(R.id.precio);
+                                  tempVal.setText(shop[1].toString());
+
+
+}
+        }catch(Exception e){
+            Toast.makeText(MainActivity.this,"Error: "+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+         }
+
+        try{
+            Bundle bundle=getIntent().getExtras();
+            action=bundle.getString("action");
+            if(action.equals("delete")){
+                delete.setVisibility(View.VISIBLE);
+                update.setVisibility(View.GONE);
+                insert.setVisibility(View.GONE);
+                idSS=bundle.getString("id");
+                String shopp[]=bundle.getStringArray("shopp");
+                TextView tempVal=(TextView) findViewById(R.id.id);
+                tempVal.setText(idSS);
+            }
+        }catch (Exception e){
+            Toast.makeText(MainActivity.this, "Error: "+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+
 }
